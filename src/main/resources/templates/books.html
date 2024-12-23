@@ -1,72 +1,70 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+      layout:decorate="~{layout}" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Car Search</title>
+    <title>Book Search</title>
 </head>
 <body>
 <div layout:fragment="content">
-    <h1>Cars</h1>
+    <h1>Books</h1>
     <div class="container">
         <div class="input-group mb-3">
             <input type="text" id="searchQuery" class="form-control">
             <div class="input-group-append">
-                <button class="btn btn-outline-primary" id="carSearchButton" type="button" onclick="search()">Search
+                <button class="btn btn-outline-primary" id="booksearchButton" type="button" onclick="search()">Search
                 </button>
             </div>
         </div>
         <p class="invisible">You searched for: <span id="searchTerm"></span></p>
-        <p class="invisible text-danger" id="carSearchErrorMessage">Sorry, we are facing some problems! Please try again
+        <p class="invisible text-danger" id="booksearchErrorMessage">Sorry, we are facing some problems! Please try again
             later.</p>
         <table class="table">
             <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">Model</th>
-                <th scope="col">Manufacturer</th>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">Description</th>
                 <th scope="col">Price</th>
-                <th scope="col">Wholesale Price</th>
                 <th></th>
             </tr>
             </thead>
-            <tbody id="carsTableContent">
-            <tr th:each="car: ${cars}">
-                <td th:text="${car.id}"></td>
-                <td th:text="${car.model}"></td>
-                <td th:text="${car.manufacturer}"></td>
-                <td th:text="${car.price}"></td>
-                <td th:text="${car.wholesalePrice}"></td>
-                <td><a th:href="@{/cars(id=${car.id})}">Details</a></td>
+            <tbody id="booksTableContent">
+            <tr th:each="book: ${books}">
+                <td th:text="${book.id}"></td>
+                <td th:text="${book.name}"></td>
+                <td th:text="${book.author}"></td>
+                <td th:text="${book.price}"></td>
+                <td><a th:href="@{/books(id=${book.id})}">Details</a></td>
             </tr>
             </tbody>
         </table>
+        <a href="/create-form">Add Book</a>
     </div>
     <template id="row-template">
         <tr>
             <td>id</td>
-            <td>model</td>
-            <td>manufacturer</td>
+            <td>title</td>
+            <td>description</td>
             <td>price</td>
-            <td>wholesale price</td>
-            <td>view profile</td>
+            <td>link</td>
         </tr>
     </template>
     <script>
-        function addRow(car) {
+        function addRow(book) {
             const template = document.getElementById('row-template');
             const row = document.importNode(template.content, true);
             const tds = row.querySelectorAll('td');
 
-            tds[0].textContent = car.id;
-            tds[1].textContent = car.model;
-            tds[2].textContent = car.manufacturer;
-            tds[3].textContent = car.price;
-            tds[4].textContent = car.wholesalePrice;
-            tds[5].innerHTML = `<a href="/cars?id=${car.id}">Details</a>`;
+            tds[0].textContent = book.id;
+            tds[1].textContent = book.name;
+            tds[2].textContent = book.author;
+            tds[3].textContent = book.price;
+            tds[4].innerHTML = `<a href="/books?id=${book.id}">Details</a>`;
 
             const tbody = document.querySelector('tbody');
             tbody.appendChild(row);
@@ -86,12 +84,12 @@
         }
 
         function showErrorMessage() {
-            const errorMessage = document.getElementById('carSearchErrorMessage');
+            const errorMessage = document.getElementById('booksearchErrorMessage');
             errorMessage.classList.remove('invisible');
         }
 
         function hideErrorMessage() {
-            const errorMessage = document.getElementById('carSearchErrorMessage');
+            const errorMessage = document.getElementById('booksearchErrorMessage');
             errorMessage.classList.add('invisible');
         }
 
@@ -106,8 +104,8 @@
             return document.getElementById('searchQuery').value;
         }
 
-        function updateSearchResults(carList) {
-            carList.forEach(addRow);
+        function updateSearchResults(bookList) {
+            bookList.forEach(addRow);
         }
 
         function search() {
@@ -116,7 +114,7 @@
 
             const searchQuery = getSearchQuery();
             updateSearchTerm(searchQuery);
-            fetch(`/api/cars/search?query=${searchQuery}`)
+            fetch(`/api/books/search?query=${searchQuery}`)
                 .then(handleErrors)
                 .then(response => response.json())
                 .then(updateSearchResults)

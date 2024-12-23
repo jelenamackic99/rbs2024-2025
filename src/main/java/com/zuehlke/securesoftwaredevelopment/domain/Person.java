@@ -1,21 +1,18 @@
 package com.zuehlke.securesoftwaredevelopment.domain;
 
 public class Person {
-    private int id;
+    private String id;
     private String firstName;
     private String lastName;
-    private String personalNumber;
-    private String address;
-
-    public Person(int id, String firstName, String lastName, String personalNumber, String address) {
+    private String email;
+    public Person(String id, String firstName, String lastName, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.personalNumber = personalNumber;
-        this.address = address;
+        this.email = email;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -39,19 +36,11 @@ public class Person {
         this.lastName = lastName;
     }
 
-    public String getPersonalNumber() {
-        return personalNumber;
+    public String getEmail() {
+        return email;
     }
 
-    public void setPersonalNumber(String personalNumber) {
-        this.personalNumber = personalNumber;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String streetNumber) {
-        this.address = streetNumber;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

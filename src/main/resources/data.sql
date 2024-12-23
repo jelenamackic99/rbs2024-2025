@@ -1,21 +1,70 @@
 insert into users(id, username, password)
 values (1, 'bruce', 'wayne'),
        (2, 'peter', 'security_rules'),
-       (3, 'tom', 'guessmeifyoucan');
+       (3, 'tom', 'guessmeifyoucan'),
+       (4, 'santa', 'clause');
+
+insert into persons(id, firstName, lastName, email)
+values (1, 'bruce', 'wayne', 'notBatman@gmail.com'),
+       (2, 'Peter', 'Petigrew', 'oneFingernailFewerToClean@gmail.com'),
+       (3, 'Tom', 'Riddle', 'theyGotMyNose@gmail.com'),
+       (4, 'Santa', 'Clause', 'st@northPole.com');
 
 insert into hashedUsers(id, username, passwordHash, salt)
 values (1, 'bruce', 'qw8Uxa2fXimKruS9wYEm4qm3ZaIGw/hJNvOG3PemhoA=', 'MEI4PU5hcHhaRHZz'),
        (2, 'peter', 'qPWryBEWiWdHsC+67dmO+y5ugGrMVI2w4MSz0+CpDm4=', 'MnY1am14c2d1ZlBf'),
        (3, 'tom', 'FLmYMYmwSRxcy0n2uwysy39ax0TRWvKHswSCPMo+PiI=', 'OChoOitAKWE0TWlD');
 
-insert into persons(id, firstName, lastName, personalNumber, address)
-values (1, 'bruce', 'wayne', '1203992441123', 'NBG'),
-       (2, 'Peter', 'Petigrew', '023348574839234', 'Diagon Alley'),
-       (3, 'Tom', 'Riddle', '3234989332432', 'Bulgaria');
+insert into book(id, name, author, description, price)
+values (1, 'Le Petit Prince',
+        'Antoine de Saint-Exupéry',
+        'The Little Prince comes from a planet barely bigger than he is, on which there are baobabs and a very precious flower, a rose, which is doing its coquette and for which he feels responsible. The Little Prince loves the sunset. One day, he saw it forty-four times! He also visited other planets and met some very important people, but they didn’t know how to answer his questions. On Earth, he tamed the fox, who became his friend.',
+        639.07),
+       (2, 'The Brothers Karamazov',
+        'Fyodor Dostoevsky',
+        'The Brothers Karamazov is a murder mystery, a courtroom drama, and an exploration of erotic rivalry in a series of triangular love affairs involving the “wicked and sentimental” Fyodor Pavlovich Karamazov and his three sons―the impulsive and sensual Dmitri; the coldly rational Ivan; and the healthy, red-cheeked young novice Alyosha. Through the gripping events of their story, Dostoevsky portrays the whole of Russian life, is social and spiritual striving, in what was both the golden age and a tragic turning point in Russian culture.',
+        413.71),
+       (3, 'Na Drini ćuprija',
+        'Ivo Andrić',
+        'Najpoznatiji roman Ive Andrića, "Na Drini ćuprija" (1945), hronološki prati četiri velika zbivanja oko mosta preko rijeke Drine u Višegradu, koji je izgradio veliki vezir Mehmed Paša Sokolovic, poreklom iz tih krajeva.',
+        1120.05),
+       (4, 'The Lord of the Rings',
+        'J.R.R. Tolkien',
+        'The Lord of the Rings tells of the great quest undertaken by Frodo and the Fellowship of the Ring: Gandalf the Wizard; the hobbits Merry, Pippin, and Sam; Gimli the Dwarf; Legolas the Elf; Boromir of Gondor; and a tall, mysterious stranger called Strider.',
+        2465.46);
 
-insert into cars(price, wholesalePrice, model, manufacturer)
-values (423, 300, 'Civic', 'Honda'),
-       (350, 200, 'Focus', 'Ford');
+insert into tags(id, name)
+values (1, 'epic'),
+       (2, 'fantasy'),
+       (3, 'wholesome'),
+       (4, 'historic'),
+       (5, 'classic'),
+       (6, 'biography');
 
-insert into comments(carId, userId, comment)
-values (1, 1, 'Honda is great!');
+insert into book_to_tag(bookId, tagId)
+values (1, 1),
+       (1, 3),
+       (2, 5),
+       (2, 3),
+       (3, 3),
+       (3, 4),
+       (4, 1),
+       (4, 2);
+
+insert into ratings(bookId, userId, rating)
+values (1, 3, 5),
+       (3, 2, 1),
+       (3, 1, 3),
+       (1, 1, 5),
+       (1, 2, 4);
+
+insert into comments(bookId, userId, comment)
+values (1, 1, 'Very nice.');
+
+insert into roles(id, name)
+values (1, 'ADMIN'),
+       (2, 'MANAGER');
+
+insert into user_to_roles(userId, roleId)
+values (4, 1),
+       (3, 2);

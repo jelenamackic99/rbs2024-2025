@@ -1,6 +1,10 @@
 package com.zuehlke.securesoftwaredevelopment.repository;
 
+import com.zuehlke.securesoftwaredevelopment.config.AuditLogger;
+import com.zuehlke.securesoftwaredevelopment.config.Entity;
 import com.zuehlke.securesoftwaredevelopment.domain.Person;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -11,6 +15,9 @@ import java.util.List;
 @Repository
 public class PersonRepository {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PersonRepository.class);
+    private static final AuditLogger auditLogger = AuditLogger.getAuditLogger(PersonRepository.class);
+
     private DataSource dataSource;
 
     public PersonRepository(DataSource dataSource) {
@@ -19,7 +26,7 @@ public class PersonRepository {
 
     public List<Person> getAll() {
         List<Person> personList = new ArrayList<>();
-        String query = "SELECT id, firstName, lastName, personalNumber, address FROM persons";
+        String query = "SELECT id, firstName, lastName, email FROM persons";
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(query)) {
@@ -32,9 +39,9 @@ public class PersonRepository {
         return personList;
     }
 
-    public List<Person> search(String searchTerm) {
+    public List<Person> search(String searchTerm) throws SQLException {
         List<Person> personList = new ArrayList<>();
-        String query = "SELECT id, firstName, lastName, personalNumber, address FROM persons WHERE UPPER(firstName) like UPPER('%" + searchTerm + "%')" +
+        String query = "SELECT id, firstName, lastName, email FROM persons WHERE UPPER(firstName) like UPPER('%" + searchTerm + "%')" +
                 " OR UPPER(lastName) like UPPER('%" + searchTerm + "%')";
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
@@ -42,14 +49,12 @@ public class PersonRepository {
             while (rs.next()) {
                 personList.add(createPersonFromResultSet(rs));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return personList;
     }
 
-    public Person get(int personId) {
-        String query = "SELECT id, firstName, lastName, personalNumber, address FROM persons WHERE id = " + personId;
+    public Person get(String personId) {
+        String query = "SELECT id, firstName, lastName, email FROM persons WHERE id = " + personId;
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(query)) {
@@ -78,26 +83,21 @@ public class PersonRepository {
         int id = rs.getInt(1);
         String firstName = rs.getString(2);
         String lastName = rs.getString(3);
-        String personalNumber = rs.getString(4);
-        String address = rs.getString(5);
-        return new Person(id, firstName, lastName, personalNumber, address);
+        String email = rs.getString(4);
+        return new Person("" + id, firstName, lastName, email);
     }
 
     public void update(Person personUpdate) {
         Person personFromDb = get(personUpdate.getId());
-        String query = "UPDATE persons SET firstName = ?, lastName = ?, personalNumber = ?, address = ? where id = " + personUpdate.getId();
+        String query = "UPDATE persons SET firstName = ?, lastName = '" + personUpdate.getLastName() + "', email = ? where id = " + personUpdate.getId();
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(query);
         ) {
             String firstName = personUpdate.getFirstName() != null ? personUpdate.getFirstName() : personFromDb.getFirstName();
-            String lastName = personUpdate.getLastName() != null ? personUpdate.getLastName() : personFromDb.getLastName();
-            String personalNumber = personUpdate.getPersonalNumber() != null ? personUpdate.getPersonalNumber() : personFromDb.getPersonalNumber();
-            String address = personUpdate.getAddress() != null ? personUpdate.getAddress() : personFromDb.getAddress();
+            String email = personUpdate.getEmail() != null ? personUpdate.getEmail() : personFromDb.getEmail();
             statement.setString(1, firstName);
-            statement.setString(2, lastName);
-            statement.setString(3, personalNumber);
-            statement.setString(4, address);
+            statement.setString(2, email);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

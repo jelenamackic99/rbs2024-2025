@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.zuehlke</groupId>
-    <artifactId>secure-software-development</artifactId>
+    <artifactId>RBS2024-2025</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>secure-software-development</name>
     <description>Secure Software Development</description>
@@ -31,7 +31,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.warrenstrange</groupId>
+            <artifactId>googleauth</artifactId>
+            <version>1.4.0</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>

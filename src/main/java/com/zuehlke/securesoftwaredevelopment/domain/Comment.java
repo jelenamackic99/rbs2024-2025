@@ -1,29 +1,32 @@
 package com.zuehlke.securesoftwaredevelopment.domain;
 
 public class Comment {
-    private int carId;
+    private int bookId;
     private Integer userId;
     private String comment;
 
-    public Comment(int carId, int userId, String comment) {
-        this.carId = carId;
+    public Comment() {
+    }
+
+    public Comment(int bookId, Integer userId, String comment) {
+        this.bookId = bookId;
         this.userId = userId;
         this.comment = comment;
     }
 
-    public int getCarId() {
-        return carId;
+    public int getBookId() {
+        return bookId;
     }
 
-    public void setCarId(int carId) {
-        this.carId = carId;
+    public void setBookId(int bookId) {
+        this.bookId = bookId;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 

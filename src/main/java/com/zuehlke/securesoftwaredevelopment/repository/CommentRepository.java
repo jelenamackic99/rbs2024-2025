@@ -1,6 +1,8 @@
 package com.zuehlke.securesoftwaredevelopment.repository;
 
 import com.zuehlke.securesoftwaredevelopment.domain.Comment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -10,6 +12,8 @@ import java.util.List;
 
 @Repository
 public class CommentRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(CommentRepository.class);
+
     private DataSource dataSource;
 
     public CommentRepository(DataSource dataSource) {
@@ -17,23 +21,20 @@ public class CommentRepository {
     }
 
     public void create(Comment comment) {
-        String query = "insert into comments(carId, userId, comment) values (?, ?, ?)";
+        String query = "insert into comments(bookId, userId, comment) values (" + comment.getBookId() + ", " + comment.getUserId() + ", '" + comment.getComment() + "')";
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query);
+             Statement statement = connection.createStatement();
         ) {
-            statement.setInt(1, comment.getCarId());
-            statement.setInt(2, comment.getUserId());
-            statement.setString(3, comment.getComment());
-            statement.executeUpdate();
+            statement.execute(query);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public List<Comment> getAll(String carId) {
+    public List<Comment> getAll(String bookId) {
         List<Comment> commentList = new ArrayList<>();
-        String query = "SELECT carId, userId, comment FROM comments WHERE carId = " + carId;
+        String query = "SELECT bookId, userId, comment FROM comments WHERE bookId = " + bookId;
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(query)) {
