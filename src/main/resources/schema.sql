@@ -42,11 +42,11 @@ create table persons
 
 create table book
 (
-    id          int          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name        varchar(255) NOT NULL,
-    author      varchar(255) NOT NULL,
+    id          int           NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name        varchar(255)  NOT NULL,
+    author      varchar(255)  NOT NULL,
     description varchar(1500) NOT NULL,
-    price       double       NOT NULL,
+    price       double        NOT NULL,
     PRIMARY KEY (ID)
 );
 
@@ -60,13 +60,8 @@ create table tags
 create table voucher
 (
     id    int          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    value varchar(255) NOT NULL
-);
-
-create table voucher_to_user
-(
-    voucherId int NOT NULL,
-    userId    int NOT NULL
+    code  varchar(255) NOT NULL,
+    value int          NOT NULL
 );
 
 create table book_to_tag

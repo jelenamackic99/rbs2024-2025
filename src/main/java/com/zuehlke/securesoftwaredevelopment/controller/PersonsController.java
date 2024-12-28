@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,7 @@ public class PersonsController {
     @GetMapping("/persons/{id}")
     public String person(@PathVariable int id, Model model) {
         model.addAttribute("person", personRepository.get("" + id));
+        model.addAttribute("username", userRepository.findUsername(id));
         return "person";
     }
 
@@ -41,6 +43,7 @@ public class PersonsController {
     public String self(Model model, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         model.addAttribute("person", personRepository.get("" + user.getId()));
+        model.addAttribute("username", userRepository.findUsername(user.getId()));
         return "person";
     }
 
@@ -53,8 +56,9 @@ public class PersonsController {
     }
 
     @PostMapping("/update-person")
-    public String updatePerson(Person person) {
+    public String updatePerson(Person person, String username) {
         personRepository.update(person);
+        userRepository.updateUsername(Integer.parseInt(person.getId()), username);
         return "redirect:/persons/" + person.getId();
     }
 

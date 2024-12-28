@@ -6,10 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 @Repository
 public class UserRepository {
@@ -37,6 +34,34 @@ public class UserRepository {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String findUsername(int id) {
+        String query = "SELECT username FROM users WHERE id=" + id;
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(query)) {
+            if (rs.next()) {
+                String username = rs.getString(1);
+                return username;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void updateUsername(int id, String username) {
+        String query = "UPDATE users SET username = ? WHERE id = " + id;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+        ) {
+            statement.setString(1, username);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean validCredentials(String username, String password) {

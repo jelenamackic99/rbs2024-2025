@@ -6,6 +6,7 @@ import com.zuehlke.securesoftwaredevelopment.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,15 +27,16 @@ public class BooksController {
     private CommentRepository commentRepository;
     private RatingRepository ratingRepository;
     private PersonRepository userRepository;
-
+    private VoucherRepository voucherRepository;
     private TagRepository tagRepository;
 
-    public BooksController(BookRepository bookRepository, CommentRepository commentRepository, RatingRepository ratingRepository, PersonRepository userRepository, TagRepository tagRepository) {
+    public BooksController(BookRepository bookRepository, CommentRepository commentRepository, RatingRepository ratingRepository, PersonRepository userRepository, TagRepository tagRepository, VoucherRepository voucherRepository) {
         this.bookRepository = bookRepository;
         this.commentRepository = commentRepository;
         this.ratingRepository = ratingRepository;
         this.userRepository = userRepository;
         this.tagRepository = tagRepository;
+        this.voucherRepository = voucherRepository;
     }
 
     @GetMapping("/")
@@ -74,7 +76,7 @@ public class BooksController {
         }
         if (ratings.size() > 0) {
             Integer sumRating = ratings.stream().map(rating -> rating.getRating()).reduce(0, (total, rating) -> total + rating);
-            Double avgRating = (double)sumRating/ratings.size();
+            Double avgRating = (double) sumRating / ratings.size();
             model.addAttribute("averageRating", avgRating);
         }
 
@@ -102,13 +104,18 @@ public class BooksController {
     public String showBuyBook(
             @PathVariable("id") int id,
             @RequestParam(required = false) boolean addressError,
+            @RequestParam(required = false) boolean voucherError,
             @RequestParam(required = false) boolean bought,
+            @RequestParam(required = false) boolean voucherUsed,
             Model model) {
 
         model.addAttribute("id", id);
+        model.addAttribute("voucherUsed", voucherUsed);
 
         if (addressError) {
             model.addAttribute("addressError", true);
+        } else if (voucherError) {
+            model.addAttribute("voucherError", true);
         } else if (bought) {
             model.addAttribute("bought", true);
         }
@@ -117,15 +124,31 @@ public class BooksController {
     }
 
     @PostMapping("/buy-book/{id}")
-    public String buyBook(@PathVariable("id") int id, @RequestParam(name = "count", required = true) int count, Address address) {
-        if (address.getAddress().length() < 10) {
+    public String buyBook(@PathVariable("id") int id, String address, String voucher) {
+        String voucherUsed = "";
+        boolean exist = voucherRepository.checkIfVoucherExist(voucher);
+
+        if (address.length() < 10) {
             return String.format("redirect:/buy-book/%s?addressError=true", id);
         }
 
-        if (count <= 0) {
-            return String.format("redirect:/buy-book/%s", id);
+        if (voucher == null || voucher.length() < 10) {
+            return String.format("redirect:/buy-book/%s?voucherError=true", id);
         }
 
-        return String.format("redirect:/buy-book/%s?bought=true", id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            User user = (User) authentication.getPrincipal();
+
+            if (exist) {
+                if (voucherRepository.checkIfVoucherIsAssignedToUser(voucher, user.getId())) {
+                    voucherRepository.deleteVoucher(voucher);
+                    voucherUsed = "&voucherUsed=true";
+                }
+            }
+        }
+
+        return String.format("redirect:/buy-book/%s?bought=true%s", id, voucherUsed);
     }
+
 }

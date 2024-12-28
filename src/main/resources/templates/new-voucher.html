@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Buy Car</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1>New voucher</h1>
+    <form class="col-5" method="POST" th:action="@{/new-voucher}">
+        <div class="form-group">
+            <label for="code">Name</label>
+            <input type="text" id="code" name="code" class="form-control"/>
+            <label for="value">Value in percentage of discount:</label>
+            <input type="text" id="value" name="value" class="form-control"/>
+        </div>
+        <button type="submit" class="btn btn-success">Create</button>
+    </form>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Value in percentage of discount</th>
+        </tr>
+        </thead>
+        <tbody id="booksTableContent">
+        <tr th:each="voucher: ${vouchers}">
+            <td th:text="${voucher.id}"></td>
+            <td th:text="${voucher.code}"></td>
+            <td th:text="${voucher.value}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -14,23 +14,23 @@
     <div class="row">
         <form class="col-5">
             <div class="form-group">
-                <label>Name:</label>
-                <b><label th:text="${book.name}"></label></b>
+                <b><label>Name:</label></b>
+                <label th:text="${book.name}"></label>
             </div>
             <div class="form-group">
-                <label>Author:</label>
-                <b><label th:text="${book.author}"></label></b>
+                <b><label>Author:</label></b>
+                <label th:text="${book.author}"></label>
             </div>
             <div class="form-group">
-                <label>Description:</label>
-                <b><label th:text="${book.description}"></label></b>
+                <b><label>Description:</label></b>
+                <label style="text-align: justify; display: block;" th:text="${book.description}"></label>
             </div>
             <div class="form-group">
-                <label>Price:</label>
-                <b><label th:text="${book.price}"></label></b>
+                <b><label>Price:</label></b>
+                <label th:text="${book.price}"></label>
             </div>
             <div class="form-group">
-                <label>Tags</label>
+                <b><label>Tags</label></b>
                 <table class="table">
                     <tbody id="tagsTableContent">
                     <tr th:each="tag: ${book.tags}">
