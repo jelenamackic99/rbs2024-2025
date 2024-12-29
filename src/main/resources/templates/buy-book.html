@@ -6,13 +6,13 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Buy Car</title>
+    <title>Buy Book</title>
 </head>
 <body>
 <div layout:fragment="content">
     <h1>Buy book</h1>
     <div class="row" th:unless="${bought == true}">
-        <form class="col-5" method="POST" th:action="@{/buy-book/__${id}__}">
+        <form id="buyBookForm" class="col-5" method="POST" th:action="@{/buy-book/__${id}__}">
             <div class="form-group">
                 <label for="card">Card number</label>
                 <input type="text" id="card" name="card" class="form-control"/>
@@ -21,13 +21,34 @@
                 <label for="voucher">Voucher:</label>
                 <input type="text" id="voucher" name="voucher" class="form-control"/>
             </div>
+            <span id="cardError" style="color: red; display: none;">Invalid card format. Must be 16 numbers.</span>
             <div class="text-danger mb-1" th:if="${addressError == true}">Address has to be at least 10 characters!</div>
-            <div class="text-danger mb-1" th:if="${voucherError == true}">Voucher has to be at least 10 characters!</div>
             <button type="submit" class="btn btn-success">Pay</button>
         </form>
     </div>
     <div class="text-success" th:if="${voucherUsed == true}">Voucher used!</div>
     <div class="text-success" th:if="${bought == true}">Congratulations! Book successfully bought!</div>
+    <script>
+        document.getElementById("buyBookForm").addEventListener("submit", function (event) {
+            const card = document.getElementById("card").value;
+
+            const codeRegex = /^\d{16}$/;
+            let isValid = true;
+
+            if (!codeRegex.test(card)) {
+                const codeError = document.getElementById("cardError");
+                codeError.style.display = "block";
+                codeError.textContent = "Invalid card format. Card number must be 16 numbers.";
+                isValid = false;
+            } else {
+                document.getElementById("cardError").style.display = "none";
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    </script>
 </div>
 </body>
 </html>

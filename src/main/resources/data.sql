@@ -2,13 +2,13 @@ insert into users(id, username, password)
 values (1, 'bruce', 'wayne'),
        (2, 'peter', 'security_rules'),
        (3, 'tom', 'guessmeifyoucan'),
-       (4, 'santa', 'clause');
+       (4, 'book', 'work');
 
 insert into persons(id, firstName, lastName, email)
 values (1, 'bruce', 'wayne', 'notBatman@gmail.com'),
        (2, 'Peter', 'Petigrew', 'oneFingernailFewerToClean@gmail.com'),
        (3, 'Tom', 'Riddle', 'theyGotMyNose@gmail.com'),
-       (4, 'Santa', 'Clause', 'st@northPole.com');
+       (4, 'book', 'work', 'bw@insecurebook.com');
 
 insert into hashedUsers(id, username, passwordHash, salt)
 values (1, 'bruce', 'qw8Uxa2fXimKruS9wYEm4qm3ZaIGw/hJNvOG3PemhoA=', 'MEI4PU5hcHhaRHZz'),
@@ -59,7 +59,7 @@ values (1, 3, 5),
        (1, 2, 4);
 
 insert into comments(bookId, userId, comment)
-values (1, 1, 'Very nice.');
+values (1, 1, 'Good read.');
 
 insert into roles(id, name)
 values (1, 'ADMIN'),

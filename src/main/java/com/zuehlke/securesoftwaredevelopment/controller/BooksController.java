@@ -104,7 +104,6 @@ public class BooksController {
     public String showBuyBook(
             @PathVariable("id") int id,
             @RequestParam(required = false) boolean addressError,
-            @RequestParam(required = false) boolean voucherError,
             @RequestParam(required = false) boolean bought,
             @RequestParam(required = false) boolean voucherUsed,
             Model model) {
@@ -114,8 +113,6 @@ public class BooksController {
 
         if (addressError) {
             model.addAttribute("addressError", true);
-        } else if (voucherError) {
-            model.addAttribute("voucherError", true);
         } else if (bought) {
             model.addAttribute("bought", true);
         }
@@ -130,10 +127,6 @@ public class BooksController {
 
         if (address.length() < 10) {
             return String.format("redirect:/buy-book/%s?addressError=true", id);
-        }
-
-        if (voucher == null || voucher.length() < 10) {
-            return String.format("redirect:/buy-book/%s?voucherError=true", id);
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
