@@ -1,3 +1,6 @@
+
+
+
 insert into users(id, username, password)
 values (1, 'bruce', 'wayne'),
        (2, 'peter', 'security_rules'),
@@ -63,8 +66,69 @@ values (1, 1, 'Good read.');
 
 insert into roles(id, name)
 values (1, 'ADMIN'),
-       (2, 'MANAGER');
+       (2, 'MANAGER'),
+       (3, 'BUYER');
 
 insert into user_to_roles(userId, roleId)
 values (4, 1),
-       (3, 2);
+       (3, 2),
+       (1,3),
+       (2,3);
+
+CREATE TABLE IF NOT EXISTS permissions (
+                        id INT PRIMARY KEY,
+                        name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS role_to_permissions (
+    roleId INT,
+    permissionId INT,
+    PRIMARY KEY (roleId, permissionId),
+    FOREIGN KEY (roleId) REFERENCES roles(id),
+    FOREIGN KEY (permissionId) REFERENCES permissions(id)
+);
+
+INSERT INTO permissions(id, name) VALUES
+(1, 'ADD_COMMENT'),
+(2, 'VIEW_BOOK_LIST'),
+(3, 'CREATE_BOOK'),
+(4, 'VIEW_PERSONS_LIST'),
+(5, 'VIEW_PERSON'),
+(6, 'UPDATE_PERSON'),
+(7, 'VIEW_MY_PROFILE'),
+(8, 'RATE_BOOK'),
+(9, 'BUY_BOOK'),
+(10, 'NEW_VOUCHER');
+
+-- Permisije za ADMIN (ID=1) - Ima sve (*)
+INSERT INTO role_to_permissions(roleId, permissionId) VALUES
+                                                          (1, 1), -- ADD_COMMENT
+                                                          (1, 2), -- VIEW_BOOK_LIST
+                                                          (1, 3), -- CREATE_BOOK
+                                                          (1, 4), -- VIEW_PERSONS_LIST
+                                                          (1, 5), -- VIEW_PERSON
+                                                          (1, 6), -- UPDATE_PERSON
+                                                          (1, 7), -- VIEW_MY_PROFILE
+                                                          (1, 8), -- RATE_BOOK
+                                                          (1, 9), -- BUY_BOOK
+                                                          (1, 10); -- NEW_VOUCHER
+
+-- Permisije za MANAGER (ID=2)
+INSERT INTO role_to_permissions(roleId, permissionId) VALUES
+                                                          (2, 1), -- ADD_COMMENT
+                                                          (2, 2), -- VIEW_BOOK_LIST
+                                                          (2, 3), -- CREATE_BOOK
+                                                          (2, 4), -- VIEW_PERSONS_LIST
+                                                          (2, 6), -- UPDATE_PERSON (samo sebe)
+                                                          (2, 7), -- VIEW_MY_PROFILE
+                                                          (2, 9), -- BUY_BOOK
+                                                          (2, 10); -- NEW_VOUCHER
+
+-- Permisije za BUYER (ID=3)
+INSERT INTO role_to_permissions(roleId, permissionId) VALUES
+                                                          (3, 1), -- ADD_COMMENT
+                                                          (3, 2), -- VIEW_BOOK_LIST
+                                                          (3, 6), -- UPDATE_PERSON (samo sebe)
+                                                          (3, 7), -- VIEW_MY_PROFILE
+                                                          (3, 8), -- RATE_BOOK
+                                                          (3, 9); -- BUY_BOOK

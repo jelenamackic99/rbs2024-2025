@@ -44,10 +44,10 @@
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/books}">Books</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" sec:authorize="hasAuthority('VIEW_PERSONS_LIST')">
                 <a class="nav-link" th:href="@{/persons}">Users</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" sec:authorize="hasAuthority('NEW_VOUCHER')">
                 <a class="nav-link" th:href="@{/new-voucher}">New Voucher</a>
             </li>
         </ul>

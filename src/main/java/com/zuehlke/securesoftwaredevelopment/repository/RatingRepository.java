@@ -45,8 +45,11 @@ public class RatingRepository {
                 preparedStatement.setInt(3, rating.getRating());
                 preparedStatement.executeUpdate();
             }
+            LOG.info("OCJENA KREIRANA/AŽURIRANA: Knjiga ID: {}, Korisnik ID: {}",
+                    rating.getBookId(), rating.getUserId());
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri kreiranju/ažuriranju ocjene. Knjiga ID: {}, Korisnik ID: {}",
+                    rating.getBookId(), rating.getUserId(), e);
         }
     }
 
@@ -60,7 +63,7 @@ public class RatingRepository {
                 ratingList.add(new Rating(rs.getInt(1), rs.getInt(2), rs.getInt(3)));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju ocjena za knjigu ID: {}. Potencijalno SQL Injection.", bookId, e);
         }
         return ratingList;
     }

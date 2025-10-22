@@ -36,7 +36,7 @@ public class RoleRepository {
                 roles.add(new Role(id, name));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju uloga za korisnika ID: {}", userId, e);
         }
         return roles;
     }

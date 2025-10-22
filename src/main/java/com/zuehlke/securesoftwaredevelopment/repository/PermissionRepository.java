@@ -36,7 +36,7 @@ public class PermissionRepository {
                 permissions.add(new Permission(id, name));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju permisija za rolu ID: {}", roleId, e);
         }
         return permissions;
     }

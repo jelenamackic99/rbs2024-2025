@@ -34,7 +34,7 @@ public class PersonRepository {
                 personList.add(createPersonFromResultSet(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("SQL greška pri dohvatanju liste svih osoba (getAll)", e);
         }
         return personList;
     }
@@ -45,7 +45,8 @@ public class PersonRepository {
                 " OR UPPER(lastName) like UPPER('%" + searchTerm + "%')";
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery(query)) {
+             ResultSet rs = statement.executeQuery(query))
+        {
             while (rs.next()) {
                 personList.add(createPersonFromResultSet(rs));
             }
@@ -62,7 +63,7 @@ public class PersonRepository {
                 return createPersonFromResultSet(rs);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("SQL greška pri dohvatanju osobe ID: {}.", personId, e);
         }
 
         return null;
@@ -74,8 +75,9 @@ public class PersonRepository {
              Statement statement = connection.createStatement();
         ) {
             statement.executeUpdate(query);
+            LOG.info("PROFIL OBRISAN: Uspješno obrisan profil ID: {}", personId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("SQL greška pri brisanju osobe ID: {}", personId, e);
         }
     }
 
@@ -99,8 +101,9 @@ public class PersonRepository {
             statement.setString(1, firstName);
             statement.setString(2, email);
             statement.executeUpdate();
+            LOG.info("PROFIL AŽURIRAN: Uspješno ažuriran profil ID: {}", personUpdate.getId());
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri ažuriranju profila ID: {}", personUpdate.getId(), e);
         }
     }
 }

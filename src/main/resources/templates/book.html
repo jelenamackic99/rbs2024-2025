@@ -47,7 +47,7 @@
                 <label>My rating:</label>
                 <b><label th:text="${userRating}"></label></b>
             </div>
-            <div class="form-group">
+            <div class="form-group" sec:authorize="hasAuthority('RATE_BOOK')">
                 <input type="radio" id="1" name="rating" value="1">
                 <label for="1">1</label>
                 <input type="radio" id="2" name="rating" value="2">
@@ -62,15 +62,15 @@
             </div>
         </form>
     </div>
-    <div class="mt-2 mb-2">
+    <div class="mt-2 mb-2" sec:authorize="hasAuthority('BUY_BOOK')">
         <a th:href="@{'/buy-book/' + ${book.id}}">Buy book</a>
     </div>
     <h2 id="book-comments">Book comments</h2>
     <div class="form-group" th:each="comment,iter : ${comments}">
         <b th:text="${comment.personName}"></b>
-        <div class="form-control" th:id="${iter.index}" th:utext="${comment.comment}" disabled></div>
+        <div class="form-control" th:id="${iter.index}" th:text="${comment.comment}" disabled></div>
     </div>
-    <div class="form-group">
+    <div class="form-group" sec:authorize="hasAuthority('ADD_COMMENT')">
         <label for="addComment">Add comment</label>
         <textarea class="form-control" id="addComment" rows="3" placeholder="Comment..."></textarea>
         <button id="createComment" class="btn btn-primary mt-2">Create comment</button>
@@ -78,6 +78,7 @@
 
     <script th:inline="javascript">
         const bookID = [[${book.id}]];
+        const csrfToken = /*[[${csrfToken}]]*/ '';
     </script>
 
     <script>
@@ -110,7 +111,8 @@
                         comment: comment
                     }),
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
                     }
                 }).then(function () {
                     window.location.reload();

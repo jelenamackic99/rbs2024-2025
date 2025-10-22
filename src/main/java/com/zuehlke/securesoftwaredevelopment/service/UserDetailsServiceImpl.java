@@ -1,5 +1,6 @@
 package com.zuehlke.securesoftwaredevelopment.service;
 
+import com.zuehlke.securesoftwaredevelopment.config.AuditLogger;
 import com.zuehlke.securesoftwaredevelopment.domain.Permission;
 import com.zuehlke.securesoftwaredevelopment.domain.User;
 import com.zuehlke.securesoftwaredevelopment.repository.UserRepository;
@@ -10,13 +11,16 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
-
+    private static final AuditLogger auditLogger = AuditLogger.getAuditLogger(UserDetailsServiceImpl.class);
     private static final Logger LOG = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
     private final PermissionService permissionService;
@@ -41,7 +45,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         user.setAuthorities(authorities);
 
-        LOG.info("User '{}' has authorities '{}'", username, user.getAuthorities());
+        LOG.info("KORISNIK PRIJAVLJEN: Korisnik {} (ID: {}) uspješno prijavljen.", user.getUsername(), user.getId());
+        auditLogger.audit(String.format("PRIJAVA USPJEŠNA: Korisnik ID: '%s', Korisničko Ime: '%s'", user.getId(), user.getUsername()));
         return user;
     }
 }

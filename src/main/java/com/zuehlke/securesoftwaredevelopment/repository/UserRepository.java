@@ -31,7 +31,7 @@ public class UserRepository {
                 return new User(id, username1, password);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju korisnika {}",username , e);
         }
         return null;
     }
@@ -46,7 +46,7 @@ public class UserRepository {
                 return username;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju korisničkog imena ID: {}", id, e);
         }
         return null;
     }
@@ -59,31 +59,45 @@ public class UserRepository {
         ) {
             statement.setString(1, username);
             statement.executeUpdate();
+            LOG.info("USPJEŠAN UPDATE: Promijenjeno korisničko ime za ID: {} na {}", id, username);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri ažuriranju korisničkog imena ID: {}", id, e);
         }
     }
 
     public boolean validCredentials(String username, String password) {
-        String query = "SELECT username FROM users WHERE username='" + username + "' AND password='" + password + "'";
+        String query = "SELECT username FROM users WHERE username = ? AND password = ?";
+
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery(query)) {
-            return rs.next();
+             java.sql.PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setString(1, username);
+            statement.setString(2, password);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                boolean isValid = rs.next();
+                if (!isValid) {
+                    LOG.warn("NEUSPJELA PRIJAVA: Pokušaj sa username: {}", username);
+                }
+                return isValid;
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri validaciji kredencijala za korisnika: {}", username, e);
         }
         return false;
     }
 
     public void delete(int userId) {
         String query = "DELETE FROM users WHERE id = " + userId;
+        LOG.info("Brisanje korisnika {}", userId);
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
-        ) {
+        )
+        {
             statement.executeUpdate(query);
+            LOG.info("KORISNIK OBRISAN: Uspješno obrisan korisnik ID: {}", userId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri brisanju korisnika id {}",userId , e);
         }
     }
 }

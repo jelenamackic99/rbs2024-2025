@@ -33,8 +33,9 @@ public class VoucherRepository {
             statement.setString(1, code);
             statement.setString(2, String.valueOf(value));
             statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.info("VOUCHER KREIRAN: Korisnik ID: {} kreirao novi vaučer: {}", userId, code);
+        }  catch (SQLException e) {
+            LOG.error("Greska pri kreiranju vaucera za korisnika ID: {}", userId, e);
         }
     }
 
@@ -48,30 +49,45 @@ public class VoucherRepository {
                 return true;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greska pri dohvatanju vaucera {}", voucher, e);
         }
         return false;
     }
 
     public boolean checkIfVoucherIsAssignedToUser(String voucher, int id) {
-        String query1 = "SELECT username FROM users WHERE id=" + id;
+        String query1 = "SELECT username FROM users WHERE id=?";
+        String username = "";
 
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery(query1)) {
-            if (rs.next()) {
-                String username = rs.getString(1);
-                String query2 = "SELECT id FROM voucher WHERE code=? AND code LIKE '%" + username + "%'";
-                PreparedStatement preparedStatement = connection.prepareStatement(query2);
-                preparedStatement.setString(1, voucher);
-                ResultSet set = preparedStatement.executeQuery();
-                if (set.next()) {
-                    return true;
+
+             PreparedStatement statement1 = connection.prepareStatement(query1)) {
+
+            statement1.setInt(1, id);
+
+            try (ResultSet rs = statement1.executeQuery()) {
+                if (rs.next()) {
+                    username = rs.getString(1);
+                } else {
+                    return false;
                 }
-                return false;
             }
+
+            String query2 = "SELECT id FROM voucher WHERE code=? AND code LIKE ?";
+
+            try (PreparedStatement statement2 = connection.prepareStatement(query2)) {
+
+                statement2.setString(1, voucher);
+                statement2.setString(2, "%" + username + "%");
+
+                try (ResultSet set = statement2.executeQuery()) {
+                    if (set.next()) {
+                        return true;
+                    }
+                }
+            }
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greska pri provjeri vaucera {}", voucher,  e);
         }
         return false;
     }
@@ -83,8 +99,9 @@ public class VoucherRepository {
              PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, voucher);
             statement.executeUpdate();
+            LOG.info("VOUCHER OBRISAN: Uspješno obrisan vaučer: {}", voucher);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri brisanju vaučera: {}", voucher, e);
         }
     }
 
@@ -98,7 +115,7 @@ public class VoucherRepository {
                 vouchers.add(new Voucher(rs.getInt(1), rs.getString(2), rs.getInt(3)));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju svih vaučera", e);
         }
         return vouchers;
     }

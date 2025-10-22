@@ -31,7 +31,7 @@ public class HashedUserRepository {
                 return new HashedUser(username, passwordHash, salt, totpKey);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju hasiranog korisnika (Login). {}", username, e);
         }
         return null;
     }
@@ -44,8 +44,9 @@ public class HashedUserRepository {
             statement.setString(2, username);
 
             statement.executeUpdate();
+            LOG.info("TOTP KLJUČ SAČUVAN: Uspješno sačuvan ključ za korisnika: {}", username);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri čuvanju TOTP ključa za korisnika: {}", username, e);
         }
     }
 }

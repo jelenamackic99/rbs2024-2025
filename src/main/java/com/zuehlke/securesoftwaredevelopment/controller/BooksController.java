@@ -10,11 +10,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
+import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -45,6 +48,7 @@ public class BooksController {
         return "books";
     }
 
+    @PreAuthorize("hasAuthority('CREATE_BOOK')")
     @GetMapping("/create-form")
     public String CreateForm(Model model) {
         model.addAttribute("tags", tagRepository.getAll());
@@ -58,11 +62,17 @@ public class BooksController {
     }
 
     @GetMapping("/books")
-    public String showBook(@RequestParam(name = "id", required = false) String id, Model model, Authentication authentication) {
+    public String showBook(@RequestParam(name = "id", required = false) String id, Model model, Authentication authentication, HttpSession session) {
         if (id == null) {
             model.addAttribute("books", bookRepository.getAll());
             return "books";
         }
+
+        String csrfToken = UUID.randomUUID().toString();
+
+        session.setAttribute("MANUAL_CSRF_TOKEN", csrfToken);
+
+        model.addAttribute("csrfToken", csrfToken);
 
         User user = (User) authentication.getPrincipal();
         List<Tag> tagList = this.tagRepository.getAll();
@@ -92,14 +102,20 @@ public class BooksController {
         return "book";
     }
 
+    @PreAuthorize("hasAuthority('CREATE_BOOK')")
     @PostMapping("/books")
-    public String createBook(NewBook newBook) throws SQLException {
+    public String createBook(NewBook newBook, Authentication authentication) throws SQLException {
+        User user = (User) authentication.getPrincipal();
+
         List<Tag> tagList = this.tagRepository.getAll();
         List<Tag> tagsToInsert = newBook.getTags().stream().map(tagId -> tagList.stream().filter(tag -> tag.getId() == tagId).findFirst().get()).collect(Collectors.toList());
         Long id = bookRepository.create(newBook, tagsToInsert);
+        LOG.info("Knjiga kreirana. Korisnik: {}. ID: {}. Naslov: {}", user.getUsername(), user.getId(), newBook.getName());
+        auditLogger.audit(String.format("KNJIGA KREIRANA ID: '%s', Korisnik ID: '%s', Naslov: '%s'", id, user.getId(), newBook.getName()));
         return "redirect:/books?id=" + id;
     }
 
+    @PreAuthorize("hasAuthority('BUY_BOOK')")
     @GetMapping("/buy-book/{id}")
     public String showBuyBook(
             @PathVariable("id") int id,
@@ -120,28 +136,38 @@ public class BooksController {
         return "buy-book";
     }
 
+    @PreAuthorize("hasAuthority('BUY_BOOK')")
     @PostMapping("/buy-book/{id}")
-    public String buyBook(@PathVariable("id") int id, String address, String voucher) {
+    public String buyBook(@PathVariable("id") int id, String address, String voucher, Authentication authentication) {
         String voucherUsed = "";
         boolean exist = voucherRepository.checkIfVoucherExist(voucher);
 
         if (address.length() < 10) {
+            LOG.warn("NEUSPJELA KUPOVINA: Nevalidna adresa. Knjiga ID: {}.", id);
             return String.format("redirect:/buy-book/%s?addressError=true", id);
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             User user = (User) authentication.getPrincipal();
+
+            auditLogger.audit(String.format("POKUŠAJ KUPOVINE: Korisnik ID: '%s' pokušava kupiti knjigu ID: '%s'. Vaučer: '%s'",
+                    user.getId(), id, voucher));
 
             if (exist) {
                 if (voucherRepository.checkIfVoucherIsAssignedToUser(voucher, user.getId())) {
                     voucherRepository.deleteVoucher(voucher);
                     voucherUsed = "&voucherUsed=true";
+
+                    auditLogger.audit(String.format("USPJEŠNA KUPOVINA: Knjiga ID: '%s', Korisnik ID: '%s', Vaučer: 'Iskorišćen'",
+                            id, user.getId()));
+                } else {
+                    LOG.warn("NEUSPJELA KUPOVINA: Vaučer nije dodijeljen korisniku ID: {}. Knjiga ID: {}", user.getId(), id);
                 }
+            } else { /// pogledayi
+                LOG.warn("NEUSPJELA KUPOVINA: Vaučer ne postoji. Knjiga ID: {}. Vaučer: {}", id, voucher);
             }
         }
 
         return String.format("redirect:/buy-book/%s?bought=true%s", id, voucherUsed);
     }
-
 }

@@ -37,7 +37,7 @@ public class BookRepository {
                 bookList.add(book);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju svih knjiga (getAll)", e);
         }
         return bookList;
     }
@@ -74,6 +74,7 @@ public class BookRepository {
                         try {
                             return g.getId() == rs2.getInt(2);
                         } catch (SQLException e) {
+                            LOG.error("Greška pri mapiranju tagova za knjigu ID: {}", bookId, e);
                             throw new RuntimeException(e);
                         }
                     }).findFirst().get();
@@ -83,7 +84,7 @@ public class BookRepository {
                 return book;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju detalja knjige ID: {}", bookId, e);
         }
 
         return null;
@@ -111,13 +112,14 @@ public class BookRepository {
                         statement2.setInt(1, (int) finalId);
                         statement2.setInt(2, tag.getId());
                         statement2.executeUpdate();
+                        LOG.info("KNJIGA KREIRANA: Uspješno kreirana knjiga ID: {}. Naslov: {}", finalId, book.getName());
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        LOG.error("Greška pri umetanju taga ID {} za knjigu ID: {}", tag.getId(), finalId, e);
                     }
                 });
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri kreiranju knjige '{}'", book.getName(), e);
         }
         return id;
     }
@@ -134,8 +136,9 @@ public class BookRepository {
             statement.executeUpdate(query2);
             statement.executeUpdate(query3);
             statement.executeUpdate(query4);
+            LOG.info("KNJIGA OBRISANA: Uspješno obrisana knjiga ID: {}", bookId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri brisanju knjige ID: {}", bookId, e);
         }
     }
 

@@ -30,8 +30,11 @@ public class CommentRepository {
             statement.setInt(2, comment.getUserId());
             statement.setString(3, comment.getComment());
             statement.executeUpdate();
+            LOG.info("KOMENTAR KREIRAN: Korisnik ID: {} postavio komentar za knjigu ID: {}",
+                    comment.getUserId(), comment.getBookId());
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri kreiranju komentara za knjigu ID: {}. Korisnik ID: {}",
+                    comment.getBookId(), comment.getUserId(), e);
         }
     }
 
@@ -45,7 +48,7 @@ public class CommentRepository {
                 commentList.add(new Comment(rs.getInt(1), rs.getInt(2), rs.getString(3)));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Greška pri dohvatanju komentara za knjigu ID: {}.", bookId, e);
         }
         return commentList;
     }
