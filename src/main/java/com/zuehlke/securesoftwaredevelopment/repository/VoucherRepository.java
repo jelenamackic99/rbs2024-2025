@@ -33,6 +33,7 @@ public class VoucherRepository {
             statement.setString(1, code);
             statement.setString(2, String.valueOf(value));
             statement.executeUpdate();
+            auditLogger.audit(String.format("VAUCER KREIRAN : '%s'", code));
             LOG.info("VOUCHER KREIRAN: Korisnik ID: {} kreirao novi vaučer: {}", userId, code);
         }  catch (SQLException e) {
             LOG.error("Greska pri kreiranju vaucera za korisnika ID: {}", userId, e);
@@ -99,6 +100,7 @@ public class VoucherRepository {
              PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, voucher);
             statement.executeUpdate();
+            auditLogger.audit(String.format("VAUCER OBRISAN : '%s'", voucher));
             LOG.info("VOUCHER OBRISAN: Uspješno obrisan vaučer: {}", voucher);
         } catch (SQLException e) {
             LOG.error("Greška pri brisanju vaučera: {}", voucher, e);

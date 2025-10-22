@@ -1,5 +1,7 @@
 package com.zuehlke.securesoftwaredevelopment.repository;
 
+import com.zuehlke.securesoftwaredevelopment.config.AuditLogger;
+import com.zuehlke.securesoftwaredevelopment.config.Entity;
 import com.zuehlke.securesoftwaredevelopment.domain.Comment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,7 @@ import java.util.List;
 @Repository
 public class CommentRepository {
     private static final Logger LOG = LoggerFactory.getLogger(CommentRepository.class);
-
+    private static final AuditLogger auditLogger = AuditLogger.getAuditLogger(CommentRepository.class);
     private DataSource dataSource;
 
     public CommentRepository(DataSource dataSource) {
@@ -30,6 +32,7 @@ public class CommentRepository {
             statement.setInt(2, comment.getUserId());
             statement.setString(3, comment.getComment());
             statement.executeUpdate();
+            auditLogger.audit(String.format("DODAN KOMENTAR '%s' za knjigu sa id: '%s'", comment.getComment(), comment.getBookId()));
             LOG.info("KOMENTAR KREIRAN: Korisnik ID: {} postavio komentar za knjigu ID: {}",
                     comment.getUserId(), comment.getBookId());
         } catch (SQLException e) {

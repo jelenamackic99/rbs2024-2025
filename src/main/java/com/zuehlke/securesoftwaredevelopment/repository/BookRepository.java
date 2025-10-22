@@ -36,6 +36,7 @@ public class BookRepository {
                 Book book = createBookFromResultSet(rs);
                 bookList.add(book);
             }
+
         } catch (SQLException e) {
             LOG.error("Greška pri dohvatanju svih knjiga (getAll)", e);
         }
@@ -112,6 +113,7 @@ public class BookRepository {
                         statement2.setInt(1, (int) finalId);
                         statement2.setInt(2, tag.getId());
                         statement2.executeUpdate();
+                        auditLogger.audit(String.format("KNJIGA KREIRANA  Naslov: '%s'", book.getName()));
                         LOG.info("KNJIGA KREIRANA: Uspješno kreirana knjiga ID: {}. Naslov: {}", finalId, book.getName());
                     } catch (SQLException e) {
                         LOG.error("Greška pri umetanju taga ID {} za knjigu ID: {}", tag.getId(), finalId, e);
@@ -136,6 +138,7 @@ public class BookRepository {
             statement.executeUpdate(query2);
             statement.executeUpdate(query3);
             statement.executeUpdate(query4);
+            auditLogger.audit(String.format("KNJIGA JE OBRISANA  id: '%s'", bookId));
             LOG.info("KNJIGA OBRISANA: Uspješno obrisana knjiga ID: {}", bookId);
         } catch (SQLException e) {
             LOG.error("Greška pri brisanju knjige ID: {}", bookId, e);

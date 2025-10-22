@@ -1,5 +1,6 @@
 package com.zuehlke.securesoftwaredevelopment.repository;
 
+import com.zuehlke.securesoftwaredevelopment.config.AuditLogger;
 import com.zuehlke.securesoftwaredevelopment.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import java.sql.*;
 public class UserRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserRepository.class);
-
+    private static final AuditLogger auditLogger = AuditLogger.getAuditLogger(UserRepository.class);
     private DataSource dataSource;
 
     public UserRepository(DataSource dataSource) {
@@ -59,6 +60,7 @@ public class UserRepository {
         ) {
             statement.setString(1, username);
             statement.executeUpdate();
+            auditLogger.audit(String.format("USERNAME AZURIRAN : '%s' za korisniska sa id: '%s'", username, id));
             LOG.info("USPJEŠAN UPDATE: Promijenjeno korisničko ime za ID: {} na {}", id, username);
         } catch (SQLException e) {
             LOG.error("Greška pri ažuriranju korisničkog imena ID: {}", id, e);
@@ -95,6 +97,7 @@ public class UserRepository {
         )
         {
             statement.executeUpdate(query);
+            auditLogger.audit(String.format("IZBRISAN KORISNIK id: '%s'", userId));
             LOG.info("KORISNIK OBRISAN: Uspješno obrisan korisnik ID: {}", userId);
         } catch (SQLException e) {
             LOG.error("Greška pri brisanju korisnika id {}",userId , e);
